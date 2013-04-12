@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.authors       = ["David Vallance"]
   gem.email         = ["davevallance@gmail.com"]
   gem.description   = %q{A gem to aid in the consumption of the google site search service; querys the service, populates a result object and has some related helper methods.}
-  gem.summary       = gem.description 
+  gem.summary       = gem.description
   gem.homepage      = "https://github.com/dvallance/google-site-search"
 
   gem.files         = `git ls-files`.split($\)
@@ -14,8 +14,8 @@ Gem::Specification.new do |gem|
   gem.name          = "google-site-search"
   gem.require_paths = ["lib"]
   gem.version       = GoogleSiteSearch::VERSION
-  gem.add_dependency("activesupport")
+  gem.add_dependency("activesupport", '~> 2.3')
   gem.add_dependency("libxml-ruby")
   gem.add_dependency("rsmaz")
-  gem.add_dependency("rack")
+  gem.add_dependency("rack", '~> 1.1')
 end

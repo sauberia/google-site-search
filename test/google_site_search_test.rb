@@ -1,10 +1,11 @@
-require_relative 'test_helper'
+require File.join(File.dirname(__FILE__), 'test_helper')
+
 
 describe GoogleSiteSearch do
 
 
   describe '.caching_key' do
-    let :sample_url do 
+    let :sample_url do
       "http://domain?q=work&ei=dontshow&do=i"
     end
 
@@ -14,10 +15,10 @@ describe GoogleSiteSearch do
 
     it "properly creates a key" do
       RSmaz.decompress(GoogleSiteSearch.caching_key(sample_url)).must_equal becomes
-    end 
-  
+    end
+
     it "raises error on bad uri" do
-      -> {GoogleSiteSearch.caching_key(nil)}.must_raise URI::InvalidURIError
+      lambda {GoogleSiteSearch.caching_key(nil)}.must_raise URI::InvalidURIError
     end
 
   end
@@ -27,15 +28,15 @@ describe GoogleSiteSearch do
     let :valid_url do
       "http://www.valid.com/search?q=mysearch"
     end
-    
+
     it "raises an error if the url has no parameters and is therefore invalid" do
       url = "http://www.noparameters.com/"
-      -> {GoogleSiteSearch.paginate(url, "my_key")}.must_raise GoogleSiteSearch::Error
+      lambda {GoogleSiteSearch.paginate(url, "my_key")}.must_raise GoogleSiteSearch::Error
     end
 
     it "raises an error if a search engine key is nil or blank" do
-      -> {GoogleSiteSearch.paginate(valid_url, "")}.must_raise GoogleSiteSearch::Error 
-      -> {GoogleSiteSearch.paginate(valid_url, nil)}.must_raise GoogleSiteSearch::Error 
+      lambda {GoogleSiteSearch.paginate(valid_url, "")}.must_raise GoogleSiteSearch::Error
+      lambda {GoogleSiteSearch.paginate(valid_url, nil)}.must_raise GoogleSiteSearch::Error
     end
 
     it 'completes a valid url for the relative path supplied' do
@@ -46,27 +47,27 @@ describe GoogleSiteSearch do
 
   describe '.relative_path' do
     it 'raises InvalidURLError if a nil is given' do
-      -> {GoogleSiteSearch.relative_path(nil)}.must_raise URI::InvalidURIError
+      lambda {GoogleSiteSearch.relative_path(nil)}.must_raise URI::InvalidURIError
     end
 
     describe 'given a relative path' do
       it 'returns the path given' do
-        GoogleSiteSearch.relative_path("/somepath").must_equal "/somepath" 
+        GoogleSiteSearch.relative_path("/somepath").must_equal "/somepath"
       end
-      
-    end 
 
-    describe 'given an absolute url' do 
+    end
+
+    describe 'given an absolute url' do
       it 'with just the domain a root path will be returned' do
-        GoogleSiteSearch.relative_path("http://www.somesite.com/").must_equal "/" 
+        GoogleSiteSearch.relative_path("http://www.somesite.com/").must_equal "/"
       end
 
       it 'with a domain and path given the path will be returned' do
-        GoogleSiteSearch.relative_path("http://www.somesite.com/my-test").must_equal "/my-test" 
+        GoogleSiteSearch.relative_path("http://www.somesite.com/my-test").must_equal "/my-test"
       end
 
       it 'with a query string the path and query will be returned' do
-        GoogleSiteSearch.relative_path("http://www.somesite.com/my-test?something=value").must_equal "/my-test?something=value" 
+        GoogleSiteSearch.relative_path("http://www.somesite.com/my-test?something=value").must_equal "/my-test?something=value"
       end
 
     end
@@ -98,10 +99,9 @@ describe GoogleSiteSearch do
   describe ".request_xml" do
 
     it "passes back the body of a successfull HTTP request" do
-      mock = MiniTest::Mock.new.expect(:is_a?, true, [Net::HTTPSuccess])
-        .expect(:body, "my response")
+      mock = MiniTest::Mock.new.expect(:is_a?, true, [Net::HTTPSuccess]).expect(:body, "my response")
       Net::HTTP.stub(:get_response, mock) do
-       GoogleSiteSearch.request_xml("/doesnt_matter").must_equal "my response" 
+       GoogleSiteSearch.request_xml("/doesnt_matter").must_equal "my response"
       end
     end
 
@@ -113,9 +113,9 @@ describe GoogleSiteSearch do
     end
 
     it "doesn't catch exceptions if they happen" do
-      mock = -> a {raise StandardError::Error}
+      mock = lambda { |a| raise StandardError::Error}
       Net::HTTP.stub(:get_response, mock) do
-       -> {GoogleSiteSearch.request_xml("/doesnt_matter")}.must_raise GoogleSiteSearch::Error 
+       lambda {GoogleSiteSearch.request_xml("/doesnt_matter")}.must_raise GoogleSiteSearch::Error
       end
     end
   end
@@ -131,7 +131,7 @@ describe GoogleSiteSearch do
   end
 
   describe ".query_multiple" do
-   
+
     describe "when there are always next results available" do
       before do
         search = Search.new("fake_url",GoogleSiteSearch::Result)
@@ -144,7 +144,7 @@ describe GoogleSiteSearch do
       end
 
       it "returns an array of query results" do
-        result.must_be_instance_of Array 
+        result.must_be_instance_of Array
       end
 
       it "performs the correct number of searches" do
@@ -180,7 +180,7 @@ describe GoogleSiteSearch do
       end
 
       it "returns an array of query results" do
-        result.must_be_instance_of Array 
+        result.must_be_instance_of Array
       end
 
       it "performs only available searchs" do

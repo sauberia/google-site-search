@@ -1,4 +1,4 @@
-require_relative 'test_helper'
+require File.join(File.dirname(__FILE__), 'test_helper')
 
 describe Search do
 
@@ -7,10 +7,10 @@ describe Search do
   end
 
   describe "#query" do
-    
+
     let :search do
       GoogleSiteSearch.stub(:request_xml, xml) do
-        Search.new("/sample", Result).query 
+        Search.new("/sample", Result).query
       end
     end
 
@@ -41,11 +41,11 @@ describe Search do
     it "next results url removed the search engine id parameter" do
       search.previous_results_url.must_equal "/previous?q=search&start=20"
     end
-    
+
     it "stores the original xml" do
       search.xml.must_equal xml
     end
-    
+
     it "defaults to the Result class" do
       search.result_class.must_equal Result
     end

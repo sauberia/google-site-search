@@ -1,8 +1,7 @@
-require "active_support/core_ext/object/to_query"
-require "active_support/core_ext/hash/indifferent_access"
-require "active_support/core_ext/object/try"
+require "google-site-search/to_query"
+require 'active_support/core_ext/hash'
+require "google-site-search/try"
 require "active_support/core_ext/object/blank"
-require "google-site-search/version"
 require "google-site-search/url_builder"
 require "google-site-search/search"
 require "google-site-search/result"
@@ -17,31 +16,31 @@ require "rack/utils"
 # A module to help query and parse the google site search api.
 #
 module GoogleSiteSearch
-	
+
   GOOGLE_SEARCH_URL = "http://www.google.com"
   DEFAULT_PARAMS = {
     :client => "google-csbe",
     :output => "xml_no_dtd",
   }
-  
+
   class Error < StandardError ; end
 
   class << self
 
     # Takes a url, strips out un-required query params, and compresses
     # a string representation. The intent is to have a small string to
-    # use as a caching key. 
+    # use as a caching key.
     def caching_key url
       params = Rack::Utils.parse_query(URI.parse(url).query)
       # ei = "Passes on an alphanumeric parameter that decodes the originating SERP where user clicked on a related search". Don't fully understand what it does but it makes my caching less effective.
-      params.delete("ei") 
+      params.delete("ei")
       key = params.map{|k,v| k.to_s + v.to_s}.sort.join
-      key.blank? ? nil : RSmaz.compress(key) 
+      key.blank? ? nil : RSmaz.compress(key)
     end
 
     # Expects the URL returned by Search#next_results_url or Search#previous_results_url.
     def paginate url, search_engine_id
-      raise GoogleSiteSearch::Error, "search_engine_id required" if search_engine_id.blank? 
+      raise GoogleSiteSearch::Error, "search_engine_id required" if search_engine_id.blank?
       uri = URI.parse(url.to_s)
       raise GoogleSiteSearch::Error, "url seems to be invalid, parameters expected" if uri.query.blank?
       if uri.relative?
@@ -52,7 +51,7 @@ module GoogleSiteSearch
       uri.to_s
     end
 
-    # See Search - This is a convienence method for creating and querying. 
+    # See Search - This is a convienence method for creating and querying.
     # This method can except a block which can access the resulting search object.
     def query url, result_class = Result, &block
       search_result = Search.new(url, result_class).query
@@ -80,7 +79,7 @@ module GoogleSiteSearch
     end
 
     # Google returns a result link as an absolute but you may
-    # want a relative version. 
+    # want a relative version.
     def relative_path path
       uri = URI.parse(path)
       uri.relative? ? path : [uri.path,uri.query].compact.join("?")
@@ -90,7 +89,7 @@ module GoogleSiteSearch
 		def separate_search_term_from_filters(string)
 			match = /\smore:p.*/.match(string)
 			return [string, nil] if match.nil?
-			return [match.pre_match.strip, match[0].strip] 
+			return [match.pre_match.strip, match[0].strip]
 		end
 
   end
